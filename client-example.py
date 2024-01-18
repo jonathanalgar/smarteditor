@@ -32,7 +32,7 @@ def send_text_to_api(md_content, url, token):
     }
 
     logging.info("Sending payload...")
-    response = requests.post(url, headers=headers, data=actual_payload, timeout=600)
+    response = requests.post(url, headers=headers, data=actual_payload, timeout=120)
 
     timestamp = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     logging.info(f"Response received at {timestamp}")
@@ -46,7 +46,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    url = getpass.getpass(prompt="Enter endpoint URL (eg. https://alttexter-prod.westeurope.cloudapp.azure.com:9100/activator): ")
+    url = getpass.getpass(prompt="Enter endpoint URL (eg. https://activator-prod.westeurope.cloudapp.azure.com:9100/activator): ")
     token = getpass.getpass(prompt="Enter ACTIVATOR_TOKEN: ")
 
     with open(args.md_file_path, 'r') as file:

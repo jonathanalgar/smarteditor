@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: activator-dev:latest
+    image: activator:latest
     ports:
       - "${ACTIVATOR_PORT}:${ACTIVATOR_PORT}"
     volumes:
