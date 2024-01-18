@@ -1,0 +1,20 @@
+version: '3.9'
+
+services:
+  activator_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: activator-dev:latest
+    ports:
+      - "${ACTIVATOR_PORT}:${ACTIVATOR_PORT}"
+    volumes:
+      - ${ACTIVATOR_CERTS_DIR}:/certs
+    environment:
+      - LANGCHAIN_PROJECT
+      - LANGCHAIN_TRACING_V2
+      - LANGCHAIN_ENDPOINT
+      - LANGCHAIN_API_KEY
+      - ACTIVATOR_TOKEN
+      - OPENAI_API_KEY
+    command: python main.py --port ${ACTIVATOR_PORT} --host ${ACTIVATOR_HOST} --certfile /certs/${ACTIVATOR_CERTFILE_NAME} --keyfile /certs/${ACTIVATOR_KEYFILE_NAME}
