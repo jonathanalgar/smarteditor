@@ -57,6 +57,6 @@ via [developers.google.com:](https://developers.google.com/tech-writing/one/acti
 - [ ] Unit tests
 - [ ] Special handling for large files
 - [ ] Rate limiting at the service level
-- [ ] Option to use [Azure OpenAI Services](https://techcommunity.microsoft.com/t5/ai-azure-ai-services-blog/gpt-4-turbo-with-vision-is-now-available-on-azure-openai-service/ba-p/4008456)
+- [ ] Option to use Azure OpenAI Services
 - [ ] Explore extending to models beyond OpenAI
 - [ ] Extend this TODO list

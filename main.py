@@ -23,7 +23,7 @@ from vale_processing import process_with_vale
 
 app = FastAPI(
     title="activator",
-    description="Service to transform setences from the passive voice to the active voice using a combination of Vale and an LLM (currently `gpt-4-1106-preview`).",
+    description="Service to batch transform sentences from passive voice to active voice using Vale (`styles/Microsoft/Passive.yml`) output as input to an LLM (currently `gpt-4-1106-preview`).",
     version="0.1",
     cookies_secure=True
 )
