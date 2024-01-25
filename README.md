@@ -6,6 +6,8 @@
 
 ## Overview
 
+[![Diagram of the system architecture of the activator microservice, showing its integration with GitHub client](activator-diag.png "Activator Architecture Diagram")](https://jonathanalgar.github.io/slides/Using%20AI%20and%20LLMs%20in%20docs-as-code%20pipelines.pdf)
+
 Service to batch transform sentences from passive voice to active voice using Vale (`styles/Microsoft/Passive.yml`) output as input to an LLM (currently `gpt-4-1106-preview`).
 
 Exists to abstract interaction with the LLM and LangSmith APIs and provide a single interface for clients, for example [activator-ghclient](https://github.com/jonathanalgar/activator-ghclient).
