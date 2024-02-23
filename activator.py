@@ -6,12 +6,29 @@ from typing import Optional, Tuple
 from langchain import callbacks
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from langchain.chains.openai_functions import create_structured_output_runnable
-from langchain.chat_models import ChatOpenAI
 from langchain.prompts import ChatPromptTemplate
+from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langsmith import Client
 
 from schema import ActivatorResponse
 
+
+def determine_llm() -> ChatOpenAI:
+    """Determine which LLM to use based on environment variable."""
+    model_env = os.getenv("ACTIVATOR_MODEL")
+    if model_env == 'openai':
+        return ChatOpenAI(verbose=True, 
+                          temperature=0, 
+                          model="gpt-4-turbo-preview", 
+                          max_tokens=4096)
+    elif model_env == 'openai_azure':
+        return AzureChatOpenAI(verbose=True, 
+                               temperature=0, openai_api_version="2024-02-15-preview",
+                               azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
+                               model="1106-Preview", 
+                               max_tokens=4096)
+    else:
+        raise ValueError(f"Unsupported model specified: {model_env}")
 
 def activator(input_text: str, passive_sentences: list) -> Tuple[ActivatorResponse, Optional[str]]:
 
@@ -25,12 +42,8 @@ def activator(input_text: str, passive_sentences: list) -> Tuple[ActivatorRespon
     Returns:
         ActivatorResponse: An object containing the original sentences, their active voice counterparts, and explanations for the transformations. Also includes an optional tracing URL.
     """
+    llm = determine_llm()
 
-    llm = ChatOpenAI(
-        verbose=True,
-        temperature=0,
-        model="gpt-4-1106-preview"
-    )
 
     prompt = ChatPromptTemplate.from_messages(
         [

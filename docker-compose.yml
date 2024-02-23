@@ -15,6 +15,10 @@ services:
       - LANGCHAIN_TRACING_V2
       - LANGCHAIN_ENDPOINT
       - LANGCHAIN_API_KEY
-      - ACTIVATOR_TOKEN
+      - ACTIVATOR_MODEL
       - OPENAI_API_KEY
+      - AZURE_OPENAI_ENDPOINT
+      - AZURE_OPENAI_API_KEY
+      - AZURE_OPENAI_DEPLOYMENT
+      - ACTIVATOR_TOKEN
     command: python main.py --port ${ACTIVATOR_PORT} --host ${ACTIVATOR_HOST} --certfile /certs/${ACTIVATOR_CERTFILE_NAME} --keyfile /certs/${ACTIVATOR_KEYFILE_NAME}
