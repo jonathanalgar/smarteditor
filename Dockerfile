@@ -1,9 +1,11 @@
 FROM python:3.11-slim AS base
 
 COPY requirements.txt /
-RUN apt-get update && apt-get --no-install-recommends install -y git
+RUN apt-get update && \
+    apt-get --no-install-recommends install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir -r /requirements.txt
-RUN apt-get clean
 
 RUN mkdir /app
 WORKDIR /app
