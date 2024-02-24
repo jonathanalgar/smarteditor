@@ -1,3 +1,5 @@
+description: Use active voice instead of passive voice.
+link: https://learn.microsoft.com/en-us/style-guide/grammar/verbs#active-and-passive-voice 
 extends: existence
 message: "'%s' looks like passive voice."
 ignorecase: true

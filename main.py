@@ -11,19 +11,19 @@ from fastapi import Body, Depends, FastAPI, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.api_key import APIKeyHeader
 
-from activator import activator
+from smarteditor import smarteditor
 from preprocessing import is_valid_notebook, keep_only_markdown_cells
-from schema import (ActivatorRequest, ErrorResponse, ExtendedActivatorResponse,
+from schema import (SmartEditorRequest, ErrorResponse, ExtendedSmartEditorResponse,
                     handle_endpoint_error)
-from vale_processing import process_with_vale
+from vale_processing import process_with_vale, append_violation_fixes
 
 # --------------------------------
 # Configuration and initialization
 # --------------------------------
 
 app = FastAPI(
-    title="activator",
-    description="Service to batch transform sentences from passive voice to active voice using Vale (`styles/Microsoft/Passive.yml`) output as input to an LLM (currently `gpt-4-1106-preview`).",
+    title="smarteditor",
+    description="Service to batch transform sentences based that violate Vale styles (currently `gpt-4-1106-preview`).",
     version="0.1",
     cookies_secure=True
 )
@@ -72,7 +72,7 @@ api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False, description='
 
 
 async def get_api_key(api_key: str = Security(api_key_header)):
-    correct_api_key = os.getenv("ACTIVATOR_TOKEN")
+    correct_api_key = os.getenv("SMARTEDITOR_TOKEN")
     if api_key != correct_api_key:
         raise HTTPException(status_code=401, detail="Invalid API Token")
     return api_key
@@ -83,15 +83,15 @@ async def get_api_key(api_key: str = Security(api_key_header)):
 
 
 @app.post(
-    "/activator",
-    response_model=ExtendedActivatorResponse,
+    "/smarteditor",
+    response_model=ExtendedSmartEditorResponse,
     responses={
         422: {"model": ErrorResponse, "description": "Validation Error"},
         500: {"model": ErrorResponse, "description": "Internal Server Error"}
     }
 )
-def activator_text(
-    request: ActivatorRequest = Body(...),
+def smarteditor_text(
+    request: SmartEditorRequest = Body(...),
     token: str = Depends(get_api_key)
 ):
     """Endpoint to process activator requests."""
@@ -102,18 +102,21 @@ def activator_text(
         if (is_valid_notebook(text)):
             text = keep_only_markdown_cells(text)
 
-        # Extract passive sentences using Vale
-        passive_sentences = process_with_vale(text)
+        # Extract sentences using Vale
+        sentences_with_violations, unique_checks = process_with_vale(text)
 
-        if not passive_sentences:
-            return ExtendedActivatorResponse(violations=[], run_url=None)
+        if not sentences_with_violations:
+            return ExtendedSmartEditorResponse(violations=[], run_url=None)
 
         # Send to LLM
-        active_response, run_url = activator(text, passive_sentences)
+        active_response, run_url = smarteditor(text, sentences_with_violations)
         if active_response is None:
-            raise Exception("Failed to generate active sentences.")
+            raise Exception("Failed to generate transformed sentences.")
 
-        return ExtendedActivatorResponse(violations=active_response.violations, run_url=run_url)
+        # Append links to explanations
+        append_violation_fixes(active_response.violations, sentences_with_violations, unique_checks)
+
+        return ExtendedSmartEditorResponse(violations=active_response.violations, run_url=run_url)
 
     except Exception as e:
         handle_endpoint_error(e)

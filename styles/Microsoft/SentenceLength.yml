@@ -1,0 +1,8 @@
+description: Write sentences less than 30 words.
+link: https://learn.microsoft.com/en-us/style-guide/global-communications/writing-tips#tips-for-all-global-content
+extends: occurrence
+message: "Try to keep sentences short (< 30 words)."
+scope: sentence
+level: suggestion
+max: 30
+token: \b(\w+)\b
