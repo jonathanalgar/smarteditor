@@ -23,7 +23,10 @@ from vale_processing import append_violation_fixes, process_with_vale
 
 app = FastAPI(
     title="smarteditor",
-    description="Service to batch transform sentences based that violate Vale styles (currently `gpt-4-1106-preview`).",
+    description="Service to ingest text and batch transform sentences that violate style rules using Vale output as input to an LLM (currently `gpt-4-1106-preview`).",
+
+    Service to batch transform sentences from passive voice to active voice using Vale (`styles/Microsoft/Passive.yml`) output as input to an LLM (currently `gpt-4-1106-preview`).
+
     version="0.1",
     cookies_secure=True
 )
