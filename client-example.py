@@ -1,9 +1,11 @@
+import argparse
+import getpass
 import json
 import logging
-import requests
-import getpass
-import argparse
+import os
 from datetime import datetime
+
+import requests
 
 logging.basicConfig(level=logging.INFO,
                     format='%(levelname)s [%(asctime)s] %(message)s',
@@ -46,8 +48,14 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    url = getpass.getpass(prompt="Enter endpoint URL (eg. https://activator-prod.westeurope.cloudapp.azure.com:9100/activator): ")
-    token = getpass.getpass(prompt="Enter ACTIVATOR_TOKEN: ")
+    # Check for environment variables
+    url = os.getenv("SMARTEDITOR_CLIENT_EXAMPLE_URL")
+    token = os.getenv("SMARTEDITOR_CLIENT_EXAMPLE_TOKEN")
+
+    if not url:
+        url = getpass.getpass(prompt="Enter endpoint URL (eg. https://smarteditor-prod.westeurope.cloudapp.azure.com:9100/smarteditor): ")
+    if not token:
+        token = getpass.getpass(prompt="Enter SMARTEDITOR_TOKEN: ")
 
     with open(args.md_file_path, 'r') as file:
         md_content = file.read()

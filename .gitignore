@@ -4,3 +4,6 @@ launch.json
 *venv*
 *.log
 .mypy_cache
+
+.vale.ini
+styles

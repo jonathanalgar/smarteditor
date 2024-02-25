@@ -5,3 +5,5 @@ launch.json
 *venv*
 
 example
+.vale.ini
+styles

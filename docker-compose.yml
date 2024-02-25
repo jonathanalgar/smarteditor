@@ -1,24 +1,26 @@
 version: '3.9'
 
 services:
-  activator_service:
+  smarteditor_service:
     build:
       context: .
       dockerfile: Dockerfile
-    image: activator:latest
+    image: smarteditor:latest
     ports:
-      - "${ACTIVATOR_PORT}:${ACTIVATOR_PORT}"
+      - "${SMARTEDITOR_PORT}:${SMARTEDITOR_PORT}"
     volumes:
-      - ${ACTIVATOR_CERTS_DIR}:/certs
+      - ${SMARTEDITOR_CERTS_DIR}:/certs
+      - ./.vale.ini:/app/.vale.ini
+      - ./styles:/app/styles
     environment:
       - LANGCHAIN_PROJECT
       - LANGCHAIN_TRACING_V2
       - LANGCHAIN_ENDPOINT
       - LANGCHAIN_API_KEY
-      - ACTIVATOR_MODEL
+      - SMARTEDITOR_MODEL
       - OPENAI_API_KEY
       - AZURE_OPENAI_ENDPOINT
       - AZURE_OPENAI_API_KEY
       - AZURE_OPENAI_DEPLOYMENT
-      - ACTIVATOR_TOKEN
-    command: python main.py --port ${ACTIVATOR_PORT} --host ${ACTIVATOR_HOST} --certfile /certs/${ACTIVATOR_CERTFILE_NAME} --keyfile /certs/${ACTIVATOR_KEYFILE_NAME}
+      - SMARTEDITOR_TOKEN
+    command: python main.py --port ${SMARTEDITOR_PORT} --host ${SMARTEDITOR_HOST} --certfile /certs/${SMARTEDITOR_CERTFILE_NAME} --keyfile /certs/${SMARTEDITOR_KEYFILE_NAME}

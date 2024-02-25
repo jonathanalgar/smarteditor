@@ -28,4 +28,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/jonathanalgar/activator:${{ github.ref_name }}
+          tags: ghcr.io/jonathanalgar/smarteditor:${{ github.ref_name }}
