@@ -1,6 +1,6 @@
 # smarteditor
 
-![ci](https://github.com/jonathanalgar/activator/actions/workflows/build-docker.yml/badge.svg) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jonathanalgar_activator&metric=bugs)](https://sonarcloud.io/summary/new_code?id=jonathanalgar_activator) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=jonathanalgar_activator&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=jonathanalgar_activator) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com)
+![ci](https://github.com/jonathanalgar/activator/actions/workflows/build-docker.yml/badge.svg) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=jonathanalgar_activator&metric=bugs)](https://sonarcloud.io/summary/new_code?id=jonathanalgar_activator) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=jonathanalgar_activator&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=jonathanalgar_activator) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://makeapullrequest.com) ![License: GPLv3](https://img.shields.io/badge/license-GPLv3-blue)
 
 ## Overview
 
