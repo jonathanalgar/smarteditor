@@ -4,7 +4,7 @@ import os
 import subprocess
 import tempfile
 from difflib import SequenceMatcher
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import nltk
 from nltk.tokenize import sent_tokenize
@@ -16,17 +16,20 @@ from difflib import SequenceMatcher
 from vale import download_vale_if_missing
 
 
-def process_with_vale(input_text: str) -> Dict[str, Dict[str, List[str]]]:
+def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]], Dict[str, Dict[str, str]]]:
     """
-    Analyzes input text with Vale, returning a mapping of sentences to their rule violations.
+    Analyzes input text with Vale, returning a tuple containing:
+    1) A mapping of sentences to their rule violations.
+    2) A dictionary of unique checks with descriptions and links.
 
     Args:
         input_text (str): Text to be analyzed.
 
     Returns:
-        Dict[str, Dict[str, List[str]]]: Mapping of sentences to a dictionary with a "violations" key listing rule violations.
+        Tuple[Dict[str, Dict[str, List[str]]], Dict[str, Dict[str, str]]]: 
+        1) Mapping of sentences to a dictionary with a "violations" key listing rule violations.
+        2) Dictionary of unique checks with 'Description' and 'Link'.
     """
-    
     vale_bin_path = download_vale_if_missing()
 
     def create_temp_markdown(text: str) -> str:
@@ -116,13 +119,9 @@ def append_violation_fixes(violations, sentences_with_violations, unique_checks)
                     highest_similarity_score = similarity_score
                     closest_match = sentence
             
-            if closest_match and highest_similarity_score >= 0.9:
-                logging.debug(f"Adjusting sentence based on similarity score {highest_similarity_score}: '{llm_original_sentence}' to '{closest_match}'")
-                llm_original_sentence = closest_match
-            else:
-                logging.debug(f"No suitable match found for '{llm_original_sentence}' with a high enough similarity score.")
+            logging.debug(f"Adjusting sentence based on similarity score {highest_similarity_score}: '{llm_original_sentence}' to '{closest_match}'")
+            llm_original_sentence = closest_match
         
-        # Proceed to append fixes with the (potentially adjusted) llm_original_sentence
         violations_links = []
         if llm_original_sentence in sentences_with_violations:
             sentence_violations = sentences_with_violations[llm_original_sentence]['violations']

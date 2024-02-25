@@ -10,8 +10,7 @@ services:
       - "${SMARTEDITOR_PORT}:${SMARTEDITOR_PORT}"
     volumes:
       - ${SMARTEDITOR_CERTS_DIR}:/certs
-      - ./config.json:/app/config.json
-      - ./vale.ini:/app/vale.ini
+      - ./.vale.ini:/app/.vale.ini
       - ./styles:/app/styles
     environment:
       - LANGCHAIN_PROJECT

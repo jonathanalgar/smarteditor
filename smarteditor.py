@@ -67,7 +67,7 @@ def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[Smart
                 content="Article: {input}"
             ),
             HumanMessage(
-                content=f"Tip: dictionary containing all sentences from the article that violate one one or more rules from the custom style guide. The value for each sentence key is a dictionary with a violations key which contains the list of all the rules the sentence violated: {str(sentences_with_violations)}"
+                content=f"Tip: dictionary containing all sentences from the article that violate one one or more rules from the custom style guide. The value for each sentence key is a dictionary with a violations key which contains the list of all the rules the sentence violated: {str(sentences_with_violations)}. Each sentence should be revised to remediate only the specific rules it violated."
             ),
         ]
     )

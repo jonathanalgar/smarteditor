@@ -1,5 +1,5 @@
-description: Use active voice instead of passive voice.
-link: https://learn.microsoft.com/en-us/style-guide/grammar/verbs#active-and-passive-voice 
+description: Use the active voice.
+link: https://github.com/OutSystems/docs-validation/blob/master/style-guide/content.adoc#use-the-active-voice
 extends: existence
 message: "'%s' looks like passive voice."
 ignorecase: true
