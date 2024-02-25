@@ -5,3 +5,5 @@ launch.json
 *.log
 .mypy_cache
 __WIP
+styles
+.vale.ini

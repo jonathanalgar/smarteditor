@@ -49,7 +49,7 @@ def process_with_vale(input_text: str) -> Dict[str, Dict[str, List[str]]]:
 
     tmp_filename = create_temp_markdown(input_text)
 
-    vale_command = [vale_bin_path, "--output=JSON", "--config", "vale.ini", tmp_filename]
+    vale_command = [vale_bin_path, "--output=JSON", tmp_filename]
 
     # Run Vale using the subprocess module
     try:

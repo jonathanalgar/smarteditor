@@ -11,11 +11,11 @@ from fastapi import Body, Depends, FastAPI, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.api_key import APIKeyHeader
 
-from smarteditor import smarteditor
 from preprocessing import is_valid_notebook, keep_only_markdown_cells
-from schema import (SmartEditorRequest, ErrorResponse, ExtendedSmartEditorResponse,
-                    handle_endpoint_error)
-from vale_processing import process_with_vale, append_violation_fixes
+from schema import (ErrorResponse, ExtendedSmartEditorResponse,
+                    SmartEditorRequest, handle_endpoint_error)
+from smarteditor import smarteditor
+from vale_processing import append_violation_fixes, process_with_vale
 
 # --------------------------------
 # Configuration and initialization
@@ -94,7 +94,7 @@ def smarteditor_text(
     request: SmartEditorRequest = Body(...),
     token: str = Depends(get_api_key)
 ):
-    """Endpoint to process activator requests."""
+    """Endpoint to process smarteditor requests."""
     try:
         text = request.text
 
