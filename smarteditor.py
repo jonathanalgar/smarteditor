@@ -1,7 +1,7 @@
 import logging
 import os
 import time
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from langchain import callbacks
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
@@ -16,45 +16,51 @@ from schema import SmartEditorResponse
 
 def get_unique_violations(sentences_with_violations):
     """
-    Extract a list of unique violations from the given structure.
+    Extracts a sorted list of unique violations from the sentences_with_violations structure.
+
+    Args:
+        sentences_with_violations (Dict): A dictionary where keys are sentences and values are dictionaries with a "violations" key listing rule violations for that sentence.
+
+    Returns:
+        List[str]: A sorted list of unique violations, each prefixed with "- " for readability.
     """
     unique_violations = set()
-    
+
     for sentence_info in sentences_with_violations.values():
         for violation in sentence_info["violations"]:
             unique_violations.add(violation)
-    
-    formatted_violations = [f"- {violation}" for violation in sorted(unique_violations)]
-    
-    return formatted_violations
+
+    return [f"- {violation}" for violation in sorted(unique_violations)]
+
 
 def determine_llm() -> ChatOpenAI:
     """Determine which LLM to use based on environment variable."""
     model_env = os.getenv("SMARTEDITOR_MODEL")
     if model_env == "openai":
-        return ChatOpenAI(verbose=True, 
-                          temperature=0, 
-                          model="gpt-4-turbo-preview", 
+        return ChatOpenAI(verbose=True,
+                          temperature=0,
+                          model="gpt-4-turbo-preview",
                           max_tokens=4096)
     elif model_env == "openai_azure":
-        return AzureChatOpenAI(verbose=True, 
+        return AzureChatOpenAI(verbose=True,
                                temperature=0, openai_api_version="2024-02-15-preview",
                                azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
-                               model="1106-Preview", 
+                               model="1106-Preview",
                                max_tokens=4096)
     else:
         raise ValueError(f"Unsupported model specified: {model_env}")
+
 
 def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[SmartEditorResponse, Optional[str]]:
     """
     Processes input text to rewrite sentences based on their style guide violations.
 
     Args:
-        input_text (str): The complete article text.
-        passive_sentences (list): A list of sentences identified as being in passive voice.
+        input_text (str): The complete article text to be processed.
+        sentences_with_violations (Dict): A dictionary mapping sentences to their respective style guide violations.
 
     Returns:
-        SmartEditorResponse: An object containing the original sentences, their revised counterparts, and explanations for the transformations. Also includes an optional tracing URL.
+        Tuple[SmartEditorResponse, Optional[str]]: A tuple where the first element is an object containing the original and revised sentences along with explanations, and the second element is an optional tracing URL for detailed analysis.
     """
     llm = determine_llm()
 

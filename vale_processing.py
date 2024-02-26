@@ -8,12 +8,9 @@ from typing import Dict, List, Tuple
 
 import nltk
 from nltk.tokenize import sent_tokenize
+from vale import download_vale_if_missing
 
 nltk.download('punkt')
-import logging
-from difflib import SequenceMatcher
-
-from vale import download_vale_if_missing
 
 
 def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]], Dict[str, Dict[str, str]]]:
@@ -26,7 +23,7 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
         input_text (str): Text to be analyzed.
 
     Returns:
-        Tuple[Dict[str, Dict[str, List[str]]], Dict[str, Dict[str, str]]]: 
+        Tuple[Dict[str, Dict[str, List[str]]], Dict[str, Dict[str, str]]]:
         1) Mapping of sentences to a dictionary with a "violations" key listing rule violations.
         2) Dictionary of unique checks with 'Description' and 'Link'.
     """
@@ -74,10 +71,7 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
         for issue in issues:
             check = issue['Check']
             description = issue['Description']
-            link = issue.get('Link', '')
-
-            if not link:
-                link = ''
+            link = issue.get('Link', '') or ''
 
             # Create or update the unique check entry
             unique_checks[check] = {'Description': description, 'Link': link}
@@ -95,8 +89,8 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
 def append_violation_fixes(violations, sentences_with_violations, unique_checks):
     """
     Appends links to the clear_explanation of each violation based on matched violations.
-    
-    Before appending fixes, it checks if original_sentence in each violation exactly matches sentences in sentences_with_violations. If not, it finds the closest match and updates original_sentence accordingly if the similarity is above a certain threshold.
+
+    Before appending fixes, it checks if original_sentence in each violation exactly matches sentences in sentences_with_violations. If not, it finds the closest match and updates original_sentence accordingly.
 
     Args:
         violations: A list of violation objects, each representing a violation with attributes 'original_sentence' and 'clear_explanation'.
@@ -112,26 +106,32 @@ def append_violation_fixes(violations, sentences_with_violations, unique_checks)
             logging.debug(f"Original sentence produced by LLM not directly found, looking for closest match: {llm_original_sentence}")
             closest_match = None
             highest_similarity_score = 0.0
-            
+
             for sentence in sentences_with_violations:
                 similarity_score = SequenceMatcher(None, llm_original_sentence, sentence).ratio()
                 if similarity_score > highest_similarity_score:
                     highest_similarity_score = similarity_score
                     closest_match = sentence
-            
+
             logging.debug(f"Adjusting sentence based on similarity score {highest_similarity_score}: '{llm_original_sentence}' to '{closest_match}'")
             llm_original_sentence = closest_match
-        
+
         violations_links = []
         if llm_original_sentence in sentences_with_violations:
             sentence_violations = sentences_with_violations[llm_original_sentence]['violations']
             for violation in sentence_violations:
-                matching_check = next((check for check, details in unique_checks.items()
-                                       if violation.strip().lower() == details['Description'].strip().lower()), None)
-                if matching_check:
+                if matching_check := next(
+                    (
+                        check
+                        for check, details in unique_checks.items()
+                        if violation.strip().lower()
+                        == details['Description'].strip().lower()
+                    ),
+                    None,
+                ):
                     violation_link = f"[{violation}]({unique_checks[matching_check]['Link']})"
                     violations_links.append(violation_link)
 
         fixes_text = "Fixes: " + ", ".join(violations_links)
         if violations_links:
-            active.clear_explanation += " " + fixes_text
+            active.clear_explanation += f" {fixes_text}"
