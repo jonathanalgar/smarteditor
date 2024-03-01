@@ -5,11 +5,12 @@ from typing import Dict, Optional, Tuple
 
 from langchain import callbacks
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
-from langchain.chains.openai_functions import create_structured_output_runnable
-from langchain.prompts import ChatPromptTemplate
+from langchain.output_parsers.openai_functions import \
+    PydanticOutputFunctionsParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langsmith import Client
-from langchain_core.messages import HumanMessage, SystemMessage
 
 from schema import SmartEditorResponse
 
@@ -51,12 +52,12 @@ def determine_llm() -> ChatOpenAI:
         raise ValueError(f"Unsupported model specified: {model_env}")
 
 
-def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[SmartEditorResponse, Optional[str]]:
+def smarteditor(article_text: str, sentences_with_violations: Dict) -> Tuple[SmartEditorResponse, Optional[str]]:
     """
-    Processes input text to rewrite sentences based on their style guide violations.
+    Processes article text to rewrite sentences based on their style guide violations.
 
     Args:
-        input_text (str): The complete article text to be processed.
+        article_text (str): The complete article text to be processed.
         sentences_with_violations (Dict): A dictionary mapping sentences to their respective style guide violations.
 
     Returns:
@@ -64,21 +65,19 @@ def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[Smart
     """
     llm = determine_llm()
 
-    prompt = ChatPromptTemplate.from_messages(
+    messages = ChatPromptTemplate.from_messages(
         [
-            SystemMessage(
-                content=f"You are a world-class expert in rewriting sentences based on the requirements of a custom style guide. For each instance of a sentence in the user provided article that violates one or more rules in the custom style guide, use the original sentence and any relevent context from the rest of the article to give the following information in JSON format:\n-The original sentence from the article that violates one or more rules of the custom style guide.\n- The revised sentence with no violations.\n- A clear explanation of the revision.\n\n Custom style guide: {str(get_unique_violations(sentences_with_violations))}"
-            ),
-            HumanMessage(
-                content="Article: {input}"
-            ),
-            HumanMessage(
-                content=f"Tip: dictionary containing all sentences from the article that violate one one or more rules from the custom style guide. The value for each sentence key is a dictionary with a violations key which contains the list of all the rules the sentence violated: {str(sentences_with_violations)}. Each sentence should be revised to remediate only the specific rules it violated."
-            ),
+            ("system", 
+                "You are a world-class expert in rewriting sentences based on the requirements of a custom style guide and. For each instance of a sentence in the user provided article that violates one or more rules in the custom style guide, use the original sentence and any relevent context from the rest of the article to give the following information in JSON format:\n-The original sentence from the article that violates one or more rules of the custom style guide.\n- The revised sentence with no violations.\n- A clear explanation of the revision.\n\n Custom style guide: {custom_style_guide}"),
+            ("human", "Article:\n\n {user_input}"),
+            ("human", 
+                "Tip: dictionary containing all sentences from the article that violate one one or more rules from the custom style guide. The value for each sentence key is a dictionary with a violations key which contains the list of all the rules the sentence violated: {sentences_with_violations}. Each sentence should be revised to remediate only the specific rules it violated.")
         ]
     )
 
-    runnable = create_structured_output_runnable(SmartEditorResponse, llm, prompt)
+    openai_functions = [convert_to_openai_function(SmartEditorResponse)]
+    parser = PydanticOutputFunctionsParser(pydantic_schema=SmartEditorResponse)
+    chain = messages | llm.bind(functions=openai_functions) | parser
 
     fixed_sentences = None
     run_url = None
@@ -88,7 +87,8 @@ def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[Smart
         client = Client()
         with callbacks.collect_runs() as cb:
             try:
-                fixed_sentences = runnable.invoke({"input": input_text})
+                fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations})
+
                 # Ensure that all tracers complete their execution
                 wait_for_all_tracers()
 
@@ -102,8 +102,8 @@ def smarteditor(input_text: str, sentences_with_violations: Dict) -> Tuple[Smart
                 logging.error(f"Error during LLM invocation with tracing: {str(e)}")
     else:
         try:
-            fixed_sentences = runnable.invoke({"input": input_text})
+                fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations})
         except Exception as e:
             logging.error(f"Error during LLM invocation without tracing: {str(e)}")
 
-    return fixed_sentences, run_url
+    return SmartEditorResponse.parse_obj(fixed_sentences), run_url

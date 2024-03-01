@@ -1,4 +1,4 @@
-description: Use the present tense whenever possible.
+description: Use the present tense whenever possible
 link: https://github.com/OutSystems/docs-validation/blob/master/style-guide/content.adoc#use-the-present-tense
 extends: existence
 message: "Possible future tense."

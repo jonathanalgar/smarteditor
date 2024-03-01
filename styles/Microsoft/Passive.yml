@@ -1,4 +1,4 @@
-description: Use the active voice.
+description: Use the active voice
 link: https://github.com/OutSystems/docs-validation/blob/master/style-guide/content.adoc#use-the-active-voice
 extends: existence
 message: "'%s' looks like passive voice."

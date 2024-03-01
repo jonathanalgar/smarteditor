@@ -128,7 +128,18 @@ def smarteditor_text(
         # Append links to explanations
         append_violation_fixes(active_response.violations, sentences_with_violations, unique_checks)
 
-        return ExtendedSmartEditorResponse(violations=active_response.violations, run_url=run_url)
+        # Filter out unchanged sentences
+        total_violations_before = len(active_response.violations)
+
+        filtered_violations = [
+            violation for violation in active_response.violations
+            if violation.original_sentence.strip() != violation.revised_sentence.strip()
+        ]
+
+        violations_removed = total_violations_before - len(filtered_violations)
+        logging.debug(f"Violations removed because they were unchanged: {violations_removed}")
+
+        return ExtendedSmartEditorResponse(violations=filtered_violations, run_url=run_url)
 
     except Exception as e:
         handle_endpoint_error(e)

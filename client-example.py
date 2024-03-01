@@ -34,7 +34,7 @@ def send_text_to_api(md_content, url, token):
     }
 
     logging.info("Sending payload...")
-    response = requests.post(url, headers=headers, data=actual_payload, timeout=120)
+    response = requests.post(url, headers=headers, data=actual_payload, timeout=240)
 
     timestamp = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
     logging.info(f"Response received at {timestamp}")
