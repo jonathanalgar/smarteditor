@@ -5,8 +5,7 @@ from typing import Dict, Optional, Tuple
 
 from langchain import callbacks
 from langchain.callbacks.tracers.langchain import wait_for_all_tracers
-from langchain.output_parsers.openai_functions import \
-    PydanticOutputFunctionsParser
+from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
@@ -76,7 +75,7 @@ def smarteditor(article_text: str, sentences_with_violations: Dict) -> Tuple[Sma
     )
 
     openai_functions = [convert_to_openai_function(SmartEditorResponse)]
-    parser = PydanticOutputFunctionsParser(pydantic_schema=SmartEditorResponse)
+    parser = JsonOutputFunctionsParser()
     chain = messages | llm.bind(functions=openai_functions) | parser
 
     fixed_sentences = None
