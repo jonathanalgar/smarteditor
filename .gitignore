@@ -6,4 +6,4 @@ launch.json
 .mypy_cache
 
 .vale.ini
-styles
+feedback.json

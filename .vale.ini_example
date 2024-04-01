@@ -7,6 +7,8 @@ IgnoredScopes = code, tt, em, strong
 
 [*.*]
 Microsoft.Passive = warning
+Microsoft.We = warning
 Openly.FutureTense = warning
+Microsoft.SentenceLength = warning
 
-# TokenIgnores=`({\s?#[A-Za-z-]+\s?}), (\w+@\w+\.\w{2}\w?), (<?(https?|ftps?)://[^\s>]+>?)`
+TokenIgnores=`({\s?#[A-Za-z-]+\s?}), (\w+@\w+\.\w{2}\w?), (<?(https?|ftps?)://[^\s>]+>?), !\[.*?\]\(.*?\s*(".*?")?\)`

@@ -1,0 +1,8 @@
+description: Try to keep sentences short (< 30 words). Split up sentence if possible
+link: https://github.com/OutSystems/docs-validation/blob/master/style-guide/content.adoc#use-the-active-voice
+extends: occurrence
+message: "Try to keep sentences short (< 30 words)."
+scope: sentence
+level: suggestion
+max: 30
+token: \b(\w+)\b
