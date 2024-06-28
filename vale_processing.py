@@ -45,6 +45,7 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
         temp_file.flush()
         temp_file_name = temp_file.name
         temp_file.close()
+
         return temp_file_name
 
     tmp_filename = create_temp_markdown(input_text)
@@ -59,13 +60,12 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
     except subprocess.CalledProcessError as e:
         output = {}
 
-    os.remove(tmp_filename)
-
     sentences_with_violations = {}
     unique_checks = {}
 
-    # Tokenize the input text into sentences for matching
-    sentences = sent_tokenize(input_text)
+    # Read the temporary file and split it into lines
+    with open(tmp_filename, 'r') as file:
+        lines = file.readlines()
 
     for _, issues in output.items():
         for issue in issues:
@@ -76,12 +76,21 @@ def process_with_vale(input_text: str) -> Tuple[Dict[str, Dict[str, List[str]]],
             # Create or update the unique check entry
             unique_checks[check] = {'Description': description, 'Link': link}
 
-            for sentence in sentences:
-                if sentence.find(issue['Match']) != -1:
-                    if sentence not in sentences_with_violations:
-                        sentences_with_violations[sentence] = {"violations": []}
-                    if description not in sentences_with_violations[sentence]["violations"]:
-                        sentences_with_violations[sentence]["violations"].append(description)
+            line_number = issue['Line'] - 1
+            span_start, span_end = issue['Span']
+
+            if 0 <= line_number < len(lines):
+                line = lines[line_number]
+                sentences = sent_tokenize(line)
+
+                for sentence in sentences:
+                    if sentence.find(line[span_start:span_end]) != -1:
+                        if sentence not in sentences_with_violations:
+                            sentences_with_violations[sentence] = {"violations": []}
+                        if description not in sentences_with_violations[sentence]["violations"]:
+                            sentences_with_violations[sentence]["violations"].append(description)
+
+    os.remove(tmp_filename)
 
     return sentences_with_violations, unique_checks
 

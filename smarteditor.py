@@ -45,8 +45,7 @@ def determine_llm() -> ChatOpenAI:
         return AzureChatOpenAI(verbose=True,
                                temperature=0, openai_api_version="2024-02-15-preview",
                                azure_deployment=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
-                               model="1106-Preview",
-                               max_tokens=4096)
+                               model="gpt-35-turbo")
     else:
         raise ValueError(f"Unsupported model specified: {model_env}")
 
@@ -67,10 +66,9 @@ def smarteditor(article_text: str, sentences_with_violations: Dict) -> Tuple[Sma
     messages = ChatPromptTemplate.from_messages(
         [
             ("system", 
-                "You are a world-class expert in rewriting sentences based on the requirements of a custom style guide and. For each instance of a sentence in the user provided article that violates one or more rules in the custom style guide, use the original sentence and any relevent context from the rest of the article to give the following information in JSON format:\n-The original sentence from the article that violates one or more rules of the custom style guide.\n- The revised sentence with no violations.\n- A clear explanation of the revision.\n\n Custom style guide: {custom_style_guide}"),
-            ("human", "Article:\n\n {user_input}"),
+                "You are a world-class expert in revising sentences. For each sentence in the user provided article that violates one or more rules in the custom style guide, use the original sentence and relevent context from the rest of the article to give the following information in JSON format:\n-The original sentence from the article that violates one or more rules of the custom style guide.\n- The revised sentence with no violations.\n- A clear explanation of the revision. \n\nThe user will provide a dictionary containing all the sentences from the article that violate one one or more rules from the custom style guide. Revise all those sentences and only those sentences. Each sentence should be revised to remediate all the rules the user specifies it violates and only those rules."),
             ("human", 
-                "Tip: dictionary containing all sentences from the article that violate one one or more rules from the custom style guide. The value for each sentence key is a dictionary with a violations key which contains the list of all the rules the sentence violated: {sentences_with_violations}. Each sentence should be revised to remediate only the specific rules it violated.")
+                "Article:\n\n {user_input}\n\n Dictionary containing all sentences from the article that violate one one or more rules from the custom style guide: {sentences_with_violations}."),
         ]
     )
 

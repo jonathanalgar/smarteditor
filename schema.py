@@ -14,7 +14,7 @@ class Actives(BaseModel):
 
 
 class SmartEditorResponse(BaseModel):
-    violations: List[Actives] = Field(..., description="A list of all instances of sentences from the article that violates one or more rules of the custom style guide.")
+    violations: List[Actives] = Field(..., description="A list of all sentences from the article that violate one or more rules of the custom style guide.")
 
 
 class ExtendedSmartEditorResponse(SmartEditorResponse):

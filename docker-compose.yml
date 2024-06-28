@@ -12,6 +12,7 @@ services:
       - ${SMARTEDITOR_CERTS_DIR}:/certs
       - ./.vale.ini:/app/.vale.ini
       - ./styles:/app/styles
+      - ./feedback.json:/app/feedback.json
     environment:
       - LANGCHAIN_PROJECT
       - LANGCHAIN_TRACING_V2

@@ -3,7 +3,7 @@ link: https://github.com/OutSystems/docs-validation/blob/master/style-guide/cont
 extends: existence
 message: "Possible future tense."
 ignorecase: true
-level: warning
+level: suggestion
 tokens:
   - will
   - '[\w][ll]'
