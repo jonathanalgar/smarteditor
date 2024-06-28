@@ -16,7 +16,7 @@ See OpenAPI specification for the service [here](https://app.swaggerhub.com/apis
 
 1. Clone the repo.
 1. Copy `.env-example` to `.env` and fill in the required env variables.
-1. Copy `.vale.ini-example` to `.vale.ini` add styles as required. Vale styles are located in the styles folder and require a `description` field. You can add a `link` field if you want to link out to the rule. To use `smarteditor` as `activator`, just use the one style:
+1. Copy `.vale.ini-example` to `.vale.ini` and `styles_example` to `styles` and add styles as required. Vale styles are located in the styles folder and require a `description` field. You can add a `link` field if you want to link out to the rule. To use `smarteditor` as `activator`, just use the one style:
 
     ```bash
     [*.*]

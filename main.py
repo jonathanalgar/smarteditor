@@ -4,6 +4,7 @@ import logging
 import logging.config
 import os
 import ssl
+from datetime import datetime
 from pathlib import Path
 
 import uvicorn
@@ -111,6 +112,8 @@ def smarteditor_text(
         text = request.text
 
         # Preprocessing
+        text = text.replace('\r', '')
+
         if (is_valid_notebook(text)):
             text = keep_only_markdown_cells(text)
 
@@ -143,6 +146,19 @@ def smarteditor_text(
 
     except Exception as e:
         handle_endpoint_error(e)
+
+@app.post('/feedback')
+async def submit_feedback(request: Request):
+    try:
+        feedback_data = await request.json()
+        feedback_data['server_timestamp'] = datetime.now().isoformat()
+        with open("feedback.json", "a") as f:
+            json.dump(feedback_data, f)
+            f.write('\n')
+        return {"message": "Feedback submitted successfully"}
+    except Exception as e:
+        print(f"Error processing feedback: {str(e)}")
+        return {"error": "An error occurred while processing the feedback"}, 500
 
 # --------------------------------
 # Check files and run service
