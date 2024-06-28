@@ -4,14 +4,20 @@ import time
 from typing import Dict, Optional, Tuple
 
 from langchain import callbacks
-from langchain.callbacks.tracers.langchain import wait_for_all_tracers
 from langchain.output_parsers.openai_functions import JsonOutputFunctionsParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.utils.function_calling import convert_to_openai_function
 from langchain_openai import AzureChatOpenAI, ChatOpenAI
-from langsmith import Client
+from langfuse.callback import CallbackHandler
 
 from schema import SmartEditorResponse
+
+
+langfuse_handler = CallbackHandler(
+    public_key=os.getenv('LANGFUSE_PUBLIC_KEY'),
+    secret_key=os.getenv('LANGFUSE_SECRET_KEY'),
+    host=os.getenv('LANGFUSE_HOST')
+)
 
 
 def get_unique_violations(sentences_with_violations):
@@ -65,9 +71,9 @@ def smarteditor(article_text: str, sentences_with_violations: Dict) -> Tuple[Sma
 
     messages = ChatPromptTemplate.from_messages(
         [
-            ("system", 
+            ("system",
                 "You are a world-class expert in revising sentences. For each sentence in the user provided article that violates one or more rules in the custom style guide, use the original sentence and relevent context from the rest of the article to give the following information in JSON format:\n-The original sentence from the article that violates one or more rules of the custom style guide.\n- The revised sentence with no violations.\n- A clear explanation of the revision. \n\nThe user will provide a dictionary containing all the sentences from the article that violate one one or more rules from the custom style guide. Revise all those sentences and only those sentences. Each sentence should be revised to remediate all the rules the user specifies it violates and only those rules."),
-            ("human", 
+            ("human",
                 "Article:\n\n {user_input}\n\n Dictionary containing all sentences from the article that violate one one or more rules from the custom style guide: {sentences_with_violations}."),
         ]
     )
@@ -79,28 +85,10 @@ def smarteditor(article_text: str, sentences_with_violations: Dict) -> Tuple[Sma
     fixed_sentences = None
     run_url = None
 
-    tracing_enabled = os.getenv("LANGCHAIN_TRACING_V2", "").lower() == "true"
-    if tracing_enabled:
-        client = Client()
-        with callbacks.collect_runs() as cb:
-            try:
-                fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations})
-
-                # Ensure that all tracers complete their execution
-                wait_for_all_tracers()
-
-                if fixed_sentences:
-                    # Get public URL for run
-                    run_id = cb.traced_runs[0].id
-                    time.sleep(2)
-                    client.share_run(run_id)
-                    run_url = client.read_run_shared_link(run_id)
-            except Exception as e:
-                logging.error(f"Error during LLM invocation with tracing: {str(e)}")
+    if os.getenv("LANGFUSE_TRACING", "False"):
+        fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations}, config={"callbacks": [langfuse_handler]})
+        run_url = str(langfuse_handler.get_trace_url())
     else:
-        try:
-                fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations})
-        except Exception as e:
-            logging.error(f"Error during LLM invocation without tracing: {str(e)}")
+        fixed_sentences = chain.invoke({"user_input": article_text, "custom_style_guide": get_unique_violations(sentences_with_violations), "sentences_with_violations": sentences_with_violations})
 
     return SmartEditorResponse.parse_obj(fixed_sentences), run_url
