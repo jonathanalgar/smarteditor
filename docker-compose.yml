@@ -14,10 +14,10 @@ services:
       - ./styles:/app/styles
       - ./feedback.json:/app/feedback.json
     environment:
-      - LANGCHAIN_PROJECT
-      - LANGCHAIN_TRACING_V2
-      - LANGCHAIN_ENDPOINT
-      - LANGCHAIN_API_KEY
+      - LANGFUSE_TRACING
+      - LANGFUSE_PUBLIC_KEY
+      - LANGFUSE_SECRET_KEY
+      - LANGFUSE_HOST
       - SMARTEDITOR_MODEL
       - OPENAI_API_KEY
       - AZURE_OPENAI_ENDPOINT

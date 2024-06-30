@@ -147,6 +147,7 @@ def smarteditor_text(
     except Exception as e:
         handle_endpoint_error(e)
 
+
 @app.post('/feedback')
 async def submit_feedback(request: Request):
     try:
